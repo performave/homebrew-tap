@@ -1,13 +1,17 @@
-# homebrew-yabai-plus
+# homebrew-tap
 
-A [Homebrew](https://brew.sh) tap for [yabai-plus](https://github.com/Performave/yabai-plus) —
-a fork of [yabai](https://github.com/koekeishiya/yabai) with extra patches, shipped
-as a Developer ID-signed, notarized universal binary.
+A [Homebrew](https://brew.sh) tap for Performave tools.
 
-## Install
+## Formulae
+
+### yabai-plus
+
+[yabai-plus](https://github.com/Performave/yabai-plus) — a fork of
+[yabai](https://github.com/koekeishiya/yabai) with extra patches, shipped as a
+Developer ID-signed, notarized universal binary.
 
 ```sh
-brew install Performave/yabai-plus/yabai-plus
+brew install Performave/tap/yabai-plus
 ```
 
 This conflicts with the upstream `yabai` formula (both install a `yabai` binary).
@@ -38,8 +42,8 @@ for enabling SIP-gated features.
 
 ## Maintenance
 
-The formula's `url`, `version`, and `sha256` are bumped automatically by the
-[`release` workflow](https://github.com/Performave/yabai-plus/blob/master/.github/workflows/release.yml)
-in the main repo whenever a `v*` tag is pushed. That step requires a
-`HOMEBREW_TAP_TOKEN` secret (a token with `contents:write` on this tap repo) in
-the yabai-plus repo.
+Each formula's `url`, `version`, and `sha256` are bumped automatically by the
+source project's release workflow when a release is tagged. For yabai-plus, that
+is the [`release` workflow](https://github.com/Performave/yabai-plus/blob/master/.github/workflows/release.yml),
+which requires a `HOMEBREW_TAP_TOKEN` secret (a token with `contents:write` on
+this tap repo) configured in the yabai-plus repo.
