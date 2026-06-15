@@ -3,7 +3,7 @@ class YabaiPlus < Formula
   homepage "https://github.com/Performave/yabai-plus"
   url "https://github.com/Performave/yabai-plus/releases/download/v7.1.25-plus.1/yabai-v7.1.25.tar.gz"
   version "7.1.25-plus.1"
-  sha256 "7f2a9a95bcdbaa5a1cfa4f7bee5b0039660c60a6cd3a8d5a577a2d07b79738bd"
+  sha256 "8298b3236dd46aa53e91b763bbd3ab8b3bd5554260f9a4900abc1074588eb46c"
   head "https://github.com/Performave/yabai-plus.git", branch: "master"
 
   depends_on macos: :big_sur
