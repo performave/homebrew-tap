@@ -1,9 +1,9 @@
 class YabaiPlus < Formula
   desc "Tiling window manager for macOS (yabai fork with extra patches)"
   homepage "https://github.com/Performave/yabai-plus"
-  url "https://github.com/Performave/yabai-plus/releases/download/v7.1.25-plus.3/yabai-v7.1.25-plus.3.tar.gz"
-  version "7.1.25-plus.3"
-  sha256 "50e32dbfe8c27db1af234dc0d8e37beaef146e117d9422773595a93758d26239"
+  url "https://github.com/performave/yabai-plus/releases/download/v7.1.25-plus.4/yabai-v7.1.25-plus.4.tar.gz"
+  version "7.1.25-plus.4"
+  sha256 "bf71a58276c0e23cd92991465ec1f58065da1d56dbfe5b626781e1f12835dfa1"
   head "https://github.com/Performave/yabai-plus.git", branch: "master"
 
   depends_on macos: :big_sur
