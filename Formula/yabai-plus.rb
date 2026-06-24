@@ -43,7 +43,12 @@ class YabaiPlus < Formula
       When running as a launchd service logs will be found in:
         /tmp/yabai_<user>.[out|err].log
 
-      If you are using the scripting-addition, remember to update your sudoers file:
+      If you are using the scripting-addition, set up the passwordless `--load-sa`
+      sudoers rule. The easiest way is to let yabai write the sha256-pinned rule
+      for you (re-run it whenever the binary is upgraded):
+        sudo yabai --install-sudoers
+
+      Or do it by hand:
         sudo visudo -f /private/etc/sudoers.d/yabai
 
       Build the configuration row by running:
