@@ -1,16 +1,16 @@
 class RiftPlus < Formula
   desc "Tiling window manager for macOS (rift fork with extra patches)"
-  homepage "https://github.com/ericwang401/rift"
+  homepage "https://github.com/performave/rift-plus"
   version "0.5.3-plus.1"
   # Interpolated so the release workflow only has to rewrite `version`.
-  url "https://github.com/ericwang401/rift/releases/download/v#{version}/rift-plus-universal-macos-#{version}.tar.gz"
+  url "https://github.com/performave/rift-plus/releases/download/v#{version}/rift-plus-universal-macos-#{version}.tar.gz"
   sha256 "0000000000000000000000000000000000000000000000000000000000000000"
   license "Apache-2.0"
 
   # Only a --HEAD build compiles anything; release installs are a prebuilt
   # universal binary and must not drag in a Rust toolchain.
   head do
-    url "https://github.com/ericwang401/rift.git", branch: "main"
+    url "https://github.com/performave/rift-plus.git", branch: "main"
     depends_on "rust" => :build
   end
 
