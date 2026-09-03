@@ -4,7 +4,7 @@ class RiftPlus < Formula
   version "0.5.3-plus.1"
   # Interpolated so the release workflow only has to rewrite `version`.
   url "https://github.com/performave/rift-plus/releases/download/v#{version}/rift-plus-universal-macos-#{version}.tar.gz"
-  sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+  sha256 "60c6f0e4c0c5f139df10eeac3c8beef8a0c3fa95d503a85178eeb2a33270b798"
   license "Apache-2.0"
 
   # Only a --HEAD build compiles anything; release installs are a prebuilt
