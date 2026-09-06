@@ -19,11 +19,13 @@ class RiftPlus < Formula
   # so nothing here hard-requires Tahoe -- but that is also the only version
   # this fork is developed and tested against.
 
-  # NOTE: this installs `rift` and `rift-cli` binaries and so collides with the
-  # upstream `rift` formula in acsandmann/tap. As with yabai-plus we do NOT use
-  # `conflicts_with`: naming a formula in another third-party tap makes
-  # `brew info`/install try to auto-load that tap, which modern Homebrew
-  # refuses. Homebrew's keg link-collision check covers this case instead.
+  # This installs `rift` and `rift-cli` and so collides with the upstream
+  # `rift` formula. The name has to be fully qualified: Homebrew resolves a
+  # bare `rift` through the core tap and errors when it is not there, whereas a
+  # tap-qualified name it cannot resolve is deliberately ignored (see
+  # `FormulaInstaller#check_conflicts`), so this enforces the conflict on a
+  # machine that has acsandmann/tap and costs nothing on one that does not.
+  conflicts_with "acsandmann/tap/rift", because: "both install `rift` and `rift-cli`"
 
   def install
     if build.head?
@@ -44,10 +46,30 @@ class RiftPlus < Formula
     pkgshare.install "rift.default.toml"
   end
 
+  # The text bends to what is actually on the machine: a leftover upstream
+  # keg, or a sudoers rule pinned to whatever binary was here before. Each of
+  # those is a step people otherwise find out about from a silent failure.
   def caveats
-    <<~EOS
+    text = <<~EOS
       This is rift-plus, a fork of rift. It installs `rift` and `rift-cli` and
       conflicts with the upstream `rift` formula (acsandmann/tap).
+    EOS
+
+    if (HOMEBREW_CELLAR/"rift").directory?
+      text += <<~EOS
+
+        The upstream `rift` formula is still installed. Nothing here needs it,
+        and its service, if running, is a second window manager fighting this
+        one. Remove it:
+          brew services stop rift
+          brew uninstall rift
+        rift-plus reads the same ~/.config/rift/config.toml, so the config
+        carries over. macOS may ask for the Accessibility grant once more, as
+        the binary's path changed.
+      EOS
+    end
+
+    text += <<~EOS
 
       Grant Accessibility to rift the first time, or it runs and silently does
       nothing:
@@ -65,15 +87,34 @@ class RiftPlus < Formula
       This fork ships its own scripting addition, which is what makes moving a
       window to another space, and creating/destroying spaces, work at all on
       macOS 26. It needs SIP's filesystem and debugging protections disabled and
-      the `-arm64e_preview_abi` boot-arg. Once:
-        sudo rift sa install-sudoers
-
-      Then have rift re-inject it on every start -- it does not survive a reboot
-      or a Dock restart -- in ~/.config/rift/config.toml:
+      the `-arm64e_preview_abi` boot-arg. Let rift re-inject it on every start
+      -- it does not survive a reboot or a Dock restart -- in
+      ~/.config/rift/config.toml:
         run_on_start = ["sudo rift sa load"]
 
-      Check it with:
+      launchd has no tty for sudo's password, so install the passwordless rule.
+      It is pinned to this exact binary, so this has to run again after every
+      install or upgrade of rift-plus:
+        sudo rift sa install-sudoers
+    EOS
+
+    if File.exist?("/private/etc/sudoers.d/rift")
+      text += <<~EOS
+        There is already such a rule, pinned to the binary that was here
+        before; it does not authorize this one until you do.
+      EOS
+    end
+
+    text + <<~EOS
+
+      Check both the payload and the rule with:
         rift sa status
+
+      Uninstalling: `brew uninstall` cannot reach the root-owned bundle and
+      sudoers rule, so take them out first, while `rift` is still here to do it:
+        sudo rift sa uninstall --all
+        brew services stop rift-plus
+        brew uninstall rift-plus
     EOS
   end
 
