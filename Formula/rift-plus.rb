@@ -19,13 +19,15 @@ class RiftPlus < Formula
   # so nothing here hard-requires Tahoe -- but that is also the only version
   # this fork is developed and tested against.
 
-  # This installs `rift` and `rift-cli` and so collides with the upstream
-  # `rift` formula. The name has to be fully qualified: Homebrew resolves a
-  # bare `rift` through the core tap and errors when it is not there, whereas a
-  # tap-qualified name it cannot resolve is deliberately ignored (see
-  # `FormulaInstaller#check_conflicts`), so this enforces the conflict on a
-  # machine that has acsandmann/tap and costs nothing on one that does not.
-  conflicts_with "acsandmann/tap/rift", because: "both install `rift` and `rift-cli`"
+  # NOTE: this installs `rift` and `rift-cli` and so collides with the upstream
+  # `rift` formula in acsandmann/tap. We deliberately do NOT declare
+  # `conflicts_with "acsandmann/tap/rift"`: resolving it loads that formula,
+  # and Homebrew's tap trust refuses to load anything from an untrusted
+  # third-party tap with an UntrustedTapError the conflict check does not
+  # rescue -- so on a machine that has acsandmann/tap tapped but not trusted
+  # (the default) the install dies before it starts. Homebrew's keg
+  # link-collision check covers the collision instead, and the caveats below
+  # spell out the migration.
 
   def install
     if build.head?
