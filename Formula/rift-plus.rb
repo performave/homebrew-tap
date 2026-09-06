@@ -112,7 +112,7 @@ class RiftPlus < Formula
 
       Uninstalling: `brew uninstall` cannot reach the root-owned bundle and
       sudoers rule, so take them out first, while `rift` is still here to do it:
-        sudo rift sa uninstall --all
+        sudo rift sa uninstall
         brew services stop rift-plus
         brew uninstall rift-plus
     EOS
