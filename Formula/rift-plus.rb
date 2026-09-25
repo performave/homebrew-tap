@@ -1,10 +1,10 @@
 class RiftPlus < Formula
   desc "Tiling window manager for macOS (rift fork with extra patches)"
   homepage "https://github.com/performave/rift-plus"
-  version "0.5.10-plus.1"
+  version "0.5.10-plus.2"
   # Interpolated so the release workflow only has to rewrite `version`.
   url "https://github.com/performave/rift-plus/releases/download/v#{version}/rift-plus-universal-macos-#{version}.tar.gz"
-  sha256 "cd6ce0adb6dcaeb2ff2f558ca1f6ca237c6e7cb43503e23395eee567155153a4"
+  sha256 "bab96a3c06be8daa5514ddc797051169774e869e9e9755aef71f8e33987a206e"
   license "Apache-2.0"
 
   # Only a --HEAD build compiles anything; release installs are a prebuilt
