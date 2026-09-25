@@ -48,6 +48,27 @@ class RiftPlus < Formula
     pkgshare.install "rift.default.toml"
   end
 
+  # macOS keys a bare executable's Accessibility grant on its path as well as
+  # its signature, and a keg's path carries the version -- opt_bin is only a
+  # symlink into it. Every upgrade looked like a new program and asked for the
+  # grant again. The service runs a copy at a path that never changes, and the
+  # Developer ID signature, the same in every release, carries the grant from
+  # one version to the next.
+  def service_binary
+    var/"rift-plus/rift"
+  end
+
+  def post_install
+    service_binary.dirname.mkpath
+    staged = service_binary.dirname/".rift.new"
+    rm staged if staged.exist?
+    cp bin/"rift", staged
+    # Renamed into place, never copied over: overwriting the file a running
+    # rift was started from invalidates its code pages, and the kernel kills
+    # it. The running one keeps the old file until the service restarts.
+    File.rename(staged, service_binary)
+  end
+
   # The text bends to what is actually on the machine: a leftover upstream
   # keg, or a sudoers rule pinned to whatever binary was here before. Each of
   # those is a step people otherwise find out about from a silent failure.
@@ -83,6 +104,11 @@ class RiftPlus < Formula
 
       To run it under launchd:
         brew services start rift-plus
+
+      The service runs its own copy of rift, #{var}/rift-plus/rift, whose path
+      stays the same across upgrades so the Accessibility grant does too. It is
+      that entry you approve, once; if an older `rift` from the Cellar is still
+      listed there, it can be removed.
 
       Logs are at /tmp/rift_<user>.[out|err].log
 
@@ -121,7 +147,7 @@ class RiftPlus < Formula
   end
 
   service do
-    run "#{opt_bin}/rift"
+    run var/"rift-plus/rift"
     environment_variables PATH: std_service_path_env, LANG: "en_US.UTF-8"
     keep_alive true
     process_type :interactive
