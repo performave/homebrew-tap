@@ -36,8 +36,9 @@ class RiftPlus < Formula
       # A source build is unsigned, and macOS pins the Accessibility grant to
       # the binary's designated requirement -- an ad-hoc signature ties it to a
       # cdhash that every rebuild changes, so Accessibility is lost on each
-      # upgrade. Release tarballs avoid this entirely: they ship Developer ID
-      # signed and notarized from CI.
+      # upgrade. A release tarball avoids this only when CI signed it with a
+      # certificate (the source repo's MACOS_SIGNING variable). An ad-hoc
+      # release has the same problem, and the caveats say so.
       ["rift", "rift-cli"].each do |program|
         system "codesign", "--force", "--sign", "-", bin/program
       end
@@ -51,11 +52,24 @@ class RiftPlus < Formula
   # macOS keys a bare executable's Accessibility grant on its path as well as
   # its signature, and a keg's path carries the version -- opt_bin is only a
   # symlink into it. Every upgrade looked like a new program and asked for the
-  # grant again. The service runs a copy at a path that never changes, and the
-  # Developer ID signature, the same in every release, carries the grant from
-  # one version to the next.
+  # grant again. The service runs a copy at a path that never changes. A
+  # certificate signature, the same in every release, then carries the grant
+  # from one version to the next. An ad-hoc one cannot: its requirement is the
+  # build's own hash.
   def service_binary
     var/"rift-plus/rift"
+  end
+
+  # A release is ad-hoc signed when the source repo's MACOS_SIGNING says so,
+  # and a --HEAD build always is. Asked of the binary itself rather than
+  # assumed, so the caveats follow whatever the release actually is.
+  def adhoc_signed?
+    return false unless (bin/"rift").exist?
+
+    Utils.safe_popen_read("/usr/bin/codesign", "-dv", (bin/"rift").to_s, err: :out)
+         .include?("Signature=adhoc")
+  rescue ErrorDuringExecution
+    false
   end
 
   def post_install
@@ -105,10 +119,26 @@ class RiftPlus < Formula
       To run it under launchd:
         brew services start rift-plus
 
-      The service runs its own copy of rift, #{var}/rift-plus/rift, whose path
-      stays the same across upgrades so the Accessibility grant does too. It is
-      that entry you approve, once; if an older `rift` from the Cellar is still
+      The service runs its own copy of rift, #{service_binary}, whose path
+      stays the same across upgrades so the Accessibility grant can too. It is
+      that entry you approve; if an older `rift` from the Cellar is still
       listed there, it can be removed.
+    EOS
+
+    if adhoc_signed?
+      text += <<~EOS
+
+        This rift is ad-hoc signed. macOS ties an
+        ad-hoc binary's grant to that exact build, so after every upgrade the
+        Accessibility entry no longer matches, even if it still shows as
+        allowed. rift then exits at start and launchd keeps restarting it.
+        After each upgrade, remove the entry (-), add #{service_binary}
+        again (+), and:
+          brew services restart rift-plus
+      EOS
+    end
+
+    text += <<~EOS
 
       Logs are at /tmp/rift_<user>.[out|err].log
 

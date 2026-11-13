@@ -15,8 +15,9 @@ class YabaiPlus < Formula
   # Homebrew's automatic keg link-collision check covers this case instead.
 
   def install
-    # Release tarballs ship a notarized, Developer ID-signed universal binary.
-    # `head` builds compile from source and get an ad-hoc signature instead.
+    # Release tarballs ship a universal binary signed in CI, as the source
+    # repo's MACOS_SIGNING variable says. `head` builds compile from source
+    # and get an ad-hoc signature instead.
     if build.head?
       system "make", "-j1", "install"
       system "codesign", "-fs", "-", "#{buildpath}/bin/yabai"
@@ -28,8 +29,19 @@ class YabaiPlus < Formula
     man1.install "#{buildpath}/doc/yabai.1"
   end
 
+  # Asked of the binary itself rather than assumed, so the caveats follow
+  # whatever the release actually is.
+  def adhoc_signed?
+    return false unless (bin/"yabai").exist?
+
+    Utils.safe_popen_read("/usr/bin/codesign", "-dv", (bin/"yabai").to_s, err: :out)
+         .include?("Signature=adhoc")
+  rescue ErrorDuringExecution
+    false
+  end
+
   def caveats
-    <<~EOS
+    text = <<~EOS
       This is yabai-plus, a fork of yabai. It installs a `yabai` binary and
       conflicts with the upstream `yabai` formula.
 
@@ -55,6 +67,19 @@ class YabaiPlus < Formula
         echo "$(whoami) ALL=(root) NOPASSWD: sha256:$(shasum -a 256 $(\\which yabai) | cut -d " " -f 1) $(\\which yabai) --load-sa"
 
       README: https://github.com/koekeishiya/yabai/wiki/Installing-yabai-(latest-release)#configure-scripting-addition
+    EOS
+
+    return text unless adhoc_signed?
+
+    text + <<~EOS
+
+      This yabai is ad-hoc signed. macOS ties an
+      ad-hoc binary's Accessibility grant to that exact build, so after every
+      upgrade the entry no longer matches, even if it still shows as allowed.
+      After each upgrade, remove yabai from
+        System Settings > Privacy & Security > Accessibility
+      add #{opt_bin}/yabai back, and restart the service:
+        yabai --restart-service
     EOS
   end
 

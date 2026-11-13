@@ -25,7 +25,7 @@ brew install --cask peelr
 
 [yabai-plus](https://github.com/Performave/yabai-plus) — a fork of
 [yabai](https://github.com/koekeishiya/yabai) with extra patches, shipped as a
-Developer ID-signed, notarized universal binary.
+universal binary.
 
 ```sh
 brew install yabai-plus
@@ -60,6 +60,24 @@ yabai --start-service
 
 See the [scripting-addition setup](https://github.com/koekeishiya/yabai/wiki/Installing-yabai-(latest-release)#configure-scripting-addition)
 for enabling SIP-gated features.
+
+## Signing
+
+There is no paid Apple Developer account behind these releases for now, so
+none of them is notarized:
+
+- **rift-plus** and **yabai-plus** are signed with an Apple Development
+  certificate. Homebrew does not quarantine what a formula installs, so they
+  need no notarization, and the Accessibility grant survives upgrades. If a
+  release is ever ad-hoc signed instead, `brew info <name>` says that every
+  upgrade then needs the grant again, and what to do.
+- **peelr** is ad-hoc signed. Gatekeeper refuses an app like this once Homebrew
+  has quarantined it, so the cask removes the quarantine after installing.
+
+Each source repo picks its signature with a `MACOS_SIGNING` Actions variable
+(`adhoc`, `signed`, or `notarized`; see its `docs/ci-setup.md`). With a paid
+account again, setting it to `notarized` brings back Developer ID signing and
+notarization, and nothing in this tap needs to change.
 
 ## Maintenance
 
