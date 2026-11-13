@@ -1,8 +1,8 @@
 cask "peelr" do
   version "1.0.0"
-  sha256 :no_check
+  sha256 "5d7cb52c11e4ef43f53718572153d993ea5ae1a34f91cd38d558d6dd20cad077"
 
-  url "https://github.com/performave/peelr/releases/download/v#{version}/Peelr-#{version}.zip"
+  url "https://github.com/performave/peelr/releases/download/v1.0.0/Peelr-1.0.0.zip"
   name "Peelr"
   desc "Background remover for macOS slide-to-notes workflows"
   homepage "https://github.com/performave/peelr"
